@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 class UrlInputField extends StatelessWidget {
   final TextEditingController controller;
-
-  const UrlInputField({super.key, required this.controller});
+  final FocusNode focusNode = FocusNode();
+  UrlInputField({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -16,6 +16,7 @@ class UrlInputField extends StatelessWidget {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
       ),
       keyboardType: TextInputType.url,
+      focusNode: focusNode,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter a URL';
@@ -29,6 +30,9 @@ class UrlInputField extends StatelessWidget {
         return null;
       },
       autovalidateMode: AutovalidateMode.onUserInteraction,
+      onFieldSubmitted: (value) {
+        FocusScope.of(context).unfocus();
+      },
     );
   }
 }
