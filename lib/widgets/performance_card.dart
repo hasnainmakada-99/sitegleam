@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../config/theme.dart';
 
 class PerformanceCard extends StatelessWidget {
   final String title;
@@ -16,16 +17,9 @@ class PerformanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 360;
+    final isSmallScreen = AppTheme.isMobile(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
-    // Adapt to dark theme better
-    final cardColor = isDarkMode ? colorScheme.surface : colorScheme.surface;
-
-    final textColor =
-        isDarkMode ? colorScheme.onSurface : colorScheme.onSurface;
 
     return Container(
       padding: EdgeInsets.symmetric(
@@ -33,24 +27,17 @@ class PerformanceCard extends StatelessWidget {
         vertical: isSmallScreen ? 12 : 16,
       ),
       decoration: BoxDecoration(
-        color: cardColor,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        boxShadow:
-            isDarkMode
-                ? [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-                : [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+        boxShadow: [
+          BoxShadow(
+            color: isDarkMode 
+                ? Colors.black.withOpacity(0.2)
+                : Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,16 +50,20 @@ class PerformanceCard extends StatelessWidget {
                   color: color.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: color, size: isSmallScreen ? 16 : 20),
+                child: Icon(
+                  icon, 
+                  color: color, 
+                  size: AppTheme.getResponsiveFontSize(context, 18),
+                ),
               ),
               SizedBox(width: isSmallScreen ? 8 : 12),
               Expanded(
                 child: Text(
                   title,
                   style: TextStyle(
-                    fontSize: isSmallScreen ? 14 : 16,
+                    fontSize: AppTheme.getResponsiveFontSize(context, 16),
                     fontWeight: FontWeight.w500,
-                    color: textColor,
+                    color: colorScheme.onSurface,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -87,12 +78,11 @@ class PerformanceCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(2),
                   child: LinearProgressIndicator(
                     value: score / 100,
-                    backgroundColor:
-                        isDarkMode
-                            ? Colors.grey.shade800
-                            : colorScheme.surfaceVariant,
+                    backgroundColor: isDarkMode
+                        ? Colors.grey.shade800
+                        : colorScheme.surfaceVariant,
                     valueColor: AlwaysStoppedAnimation<Color>(color),
-                    minHeight: 5, // Thinner progress bar to match design
+                    minHeight: 5,
                   ),
                 ),
               ),
@@ -100,7 +90,7 @@ class PerformanceCard extends StatelessWidget {
               Text(
                 score.toInt().toString(),
                 style: TextStyle(
-                  fontSize: isSmallScreen ? 16 : 18,
+                  fontSize: AppTheme.getResponsiveFontSize(context, 18),
                   fontWeight: FontWeight.bold,
                   color: color,
                 ),
