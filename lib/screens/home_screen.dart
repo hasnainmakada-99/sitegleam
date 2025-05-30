@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/pagespeed_service.dart';
 import '../widgets/url_input_field.dart';
+import '../config/theme.dart';
 import 'results_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -58,6 +59,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isSmallScreen = AppTheme.isMobile(context);
+    final responsivePadding = AppTheme.getResponsivePadding(context);
 
     return Scaffold(
       body: SafeArea(
@@ -66,14 +69,17 @@ class _HomeScreenState extends State<HomeScreen> {
           child: CustomScrollView(
             slivers: [
               SliverAppBar(
-                expandedHeight: 200.0,
+                expandedHeight: isSmallScreen ? 150.0 : 200.0,
                 floating: false,
                 pinned: true,
                 flexibleSpace: FlexibleSpaceBar(
                   centerTitle: true,
-                  title: const Text(
+                  title: Text(
                     'SiteGleam',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold, 
+                      fontSize: AppTheme.getResponsiveFontSize(context, 20),
+                    ),
                   ),
                   background: Container(
                     decoration: BoxDecoration(
@@ -89,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Center(
                       child: Icon(
                         Icons.speed_rounded,
-                        size: 80,
+                        size: isSmallScreen ? 60 : 80,
                         color: colorScheme.onPrimary.withOpacity(0.7),
                       ),
                     ),
@@ -97,65 +103,74 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Website Performance Analysis',
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.primary,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Enter a URL to analyze its performance, accessibility, best practices, and SEO metrics.',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      UrlInputField(controller: _urlController),
-                      const SizedBox(height: 32),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton.icon(
-                          onPressed: _isAnalyzing ? null : _analyzeWebsite,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: colorScheme.primary,
-                            foregroundColor: colorScheme.onPrimary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          icon:
-                              _isAnalyzing
-                                  ? SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: colorScheme.onPrimary,
-                                    ),
-                                  )
-                                  : const Icon(Icons.search),
-                          label: Text(
-                            _isAnalyzing ? 'Analyzing...' : 'Analyze Website',
-                            style: const TextStyle(
-                              fontSize: 18,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: AppTheme.isDesktop(context) ? 800 : double.infinity,
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(responsivePadding),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Website Performance Analysis',
+                            style: TextStyle(
+                              fontSize: AppTheme.getResponsiveFontSize(context, 24),
                               fontWeight: FontWeight.bold,
+                              color: colorScheme.primary,
                             ),
                           ),
-                        ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Enter a URL to analyze its performance, accessibility, best practices, and SEO metrics.',
+                            style: TextStyle(
+                              fontSize: AppTheme.getResponsiveFontSize(context, 16),
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          UrlInputField(
+                            controller: _urlController,
+                            onSubmitted: _analyzeWebsite,
+                          ),
+                          const SizedBox(height: 32),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton.icon(
+                              onPressed: _isAnalyzing ? null : _analyzeWebsite,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: colorScheme.onPrimary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              icon: _isAnalyzing
+                                  ? SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: colorScheme.onPrimary,
+                                      ),
+                                    )
+                                  : const Icon(Icons.analytics_rounded),
+                              label: Text(
+                                _isAnalyzing ? 'Analyzing...' : 'Analyze Website',
+                                style: TextStyle(
+                                  fontSize: AppTheme.getResponsiveFontSize(context, 16),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 48),
+                          _buildFeaturesSection(colorScheme),
+                        ],
                       ),
-                      const SizedBox(height: 48),
-                      _buildFeaturesSection(colorScheme),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -167,43 +182,92 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildFeaturesSection(ColorScheme colorScheme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'What We Analyze',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: colorScheme.primary,
-          ),
-        ),
-        const SizedBox(height: 16),
-        _buildFeatureCard(
-          icon: Icons.speed,
-          title: 'Performance',
-          description: 'Loading time and interactivity metrics',
-          color: Colors.blue,
-        ),
-        _buildFeatureCard(
-          icon: Icons.accessibility_new,
-          title: 'Accessibility',
-          description: 'How accessible your site is to all users',
-          color: Colors.green,
-        ),
-        _buildFeatureCard(
-          icon: Icons.check_circle,
-          title: 'Best Practices',
-          description: 'Adherence to web development best practices',
-          color: Colors.amber,
-        ),
-        _buildFeatureCard(
-          icon: Icons.trending_up,
-          title: 'SEO',
-          description: 'Search engine optimization factors',
-          color: Colors.purple,
-        ),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktop = AppTheme.isDesktop(context);
+        final isTablet = AppTheme.isTablet(context);
+        
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'What We Analyze',
+              style: TextStyle(
+                fontSize: AppTheme.getResponsiveFontSize(context, 20),
+                fontWeight: FontWeight.bold,
+                color: colorScheme.primary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (isDesktop || isTablet)
+              // Grid layout for larger screens
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: isDesktop ? 2 : 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 3,
+                children: [
+                  _buildFeatureCard(
+                    icon: Icons.speed,
+                    title: 'Performance',
+                    description: 'Loading time and interactivity metrics',
+                    color: Colors.blue,
+                  ),
+                  _buildFeatureCard(
+                    icon: Icons.accessibility_new,
+                    title: 'Accessibility',
+                    description: 'How accessible your site is to all users',
+                    color: Colors.green,
+                  ),
+                  _buildFeatureCard(
+                    icon: Icons.check_circle,
+                    title: 'Best Practices',
+                    description: 'Adherence to web development best practices',
+                    color: Colors.amber,
+                  ),
+                  _buildFeatureCard(
+                    icon: Icons.trending_up,
+                    title: 'SEO',
+                    description: 'Search engine optimization factors',
+                    color: Colors.purple,
+                  ),
+                ],
+              )
+            else
+              // Column layout for mobile
+              Column(
+                children: [
+                  _buildFeatureCard(
+                    icon: Icons.speed,
+                    title: 'Performance',
+                    description: 'Loading time and interactivity metrics',
+                    color: Colors.blue,
+                  ),
+                  _buildFeatureCard(
+                    icon: Icons.accessibility_new,
+                    title: 'Accessibility',
+                    description: 'How accessible your site is to all users',
+                    color: Colors.green,
+                  ),
+                  _buildFeatureCard(
+                    icon: Icons.check_circle,
+                    title: 'Best Practices',
+                    description: 'Adherence to web development best practices',
+                    color: Colors.amber,
+                  ),
+                  _buildFeatureCard(
+                    icon: Icons.trending_up,
+                    title: 'SEO',
+                    description: 'Search engine optimization factors',
+                    color: Colors.purple,
+                  ),
+                ],
+              ),
+          ],
+        );
+      },
     );
   }
 
