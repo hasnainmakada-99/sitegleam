@@ -95,7 +95,7 @@ class ResultsScreen extends StatelessWidget {
     DateFormat dateFormat,
   ) {
     final isSmallScreen = AppTheme.isMobile(context);
-    
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -183,10 +183,7 @@ class ResultsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildScoreOverview(
-    BuildContext context,
-    ColorScheme colorScheme,
-  ) {
+  Widget _buildScoreOverview(BuildContext context, ColorScheme colorScheme) {
     final overallScore = result.overallScore;
     final isSmallScreen = AppTheme.isMobile(context);
 
@@ -196,7 +193,7 @@ class ResultsScreen extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
-      padding: EdgeInsets.all(AppTheme.getResponsivePadding(context, 24)),
+      padding: EdgeInsets.all(AppTheme.getResponsivePadding(context)),
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
@@ -223,7 +220,6 @@ class ResultsScreen extends StatelessWidget {
                   valueColor: AlwaysStoppedAnimation<Color>(
                     _getScoreColor(overallScore),
                   ),
-
                   semanticsLabel: 'Overall score $overallScore out of 100',
                 ),
                 Column(
@@ -299,11 +295,8 @@ class ResultsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildScoreCards(
-    BuildContext context,
-  ) {
+  Widget _buildScoreCards(BuildContext context) {
     final isSmallScreen = AppTheme.isMobile(context);
-    final isTablet = AppTheme.isTablet(context);
     final metrics = [
       {
         'title': 'Performance',
@@ -337,104 +330,108 @@ class ResultsScreen extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-          const SizedBox(height: 16),
-          isSmallScreen
-              ? Column(
-                children:
-                    metrics
-                        .map(
-                          (metric) => Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: PerformanceCard(
-                              title: metric['title'] as String,
-                              score: metric['score'] as double,
-                              color: _getScoreColor(metric['score'] as double),
-                              icon: metric['icon'] as IconData,
-                            ),
-                          ),
-                        )
-                        .toList(),
-              )
-              : Column(
+        const SizedBox(height: 16),
+        if (isSmallScreen)
+          Column(
+            children:
+                metrics
+                    .map(
+                      (metric) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: PerformanceCard(
+                          title: metric['title'] as String,
+                          score: metric['score'] as double,
+                          color: _getScoreColor(metric['score'] as double),
+                          icon: metric['icon'] as IconData,
+                        ),
+                      ),
+                    )
+                    .toList(),
+          )
+        else
+          Column(
+            children: [
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: PerformanceCard(
-                          title: metrics[0]['title'] as String,
-                          score: metrics[0]['score'] as double,
-                          color: _getScoreColor(metrics[0]['score'] as double),
-                          icon: metrics[0]['icon'] as IconData,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: PerformanceCard(
-                          title: metrics[1]['title'] as String,
-                          score: metrics[1]['score'] as double,
-                          color: _getScoreColor(metrics[1]['score'] as double),
-                          icon: metrics[1]['icon'] as IconData,
-                        ),
-                      ),
-                    ],
+                  Expanded(
+                    child: PerformanceCard(
+                      title: metrics[0]['title'] as String,
+                      score: metrics[0]['score'] as double,
+                      color: _getScoreColor(metrics[0]['score'] as double),
+                      icon: metrics[0]['icon'] as IconData,
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: PerformanceCard(
-                          title: metrics[2]['title'] as String,
-                          score: metrics[2]['score'] as double,
-                          color: _getScoreColor(metrics[2]['score'] as double),
-                          icon: metrics[2]['icon'] as IconData,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: PerformanceCard(
-                          title: metrics[3]['title'] as String,
-                          score: metrics[3]['score'] as double,
-                          color: _getScoreColor(metrics[3]['score'] as double),
-                          icon: metrics[3]['icon'] as IconData,
-                        ),
-                      ),
-                    ],
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: PerformanceCard(
+                      title: metrics[1]['title'] as String,
+                      score: metrics[1]['score'] as double,
+                      color: _getScoreColor(metrics[1]['score'] as double),
+                      icon: metrics[1]['icon'] as IconData,
+                    ),
                   ),
                 ],
               ),
-        ],
-      ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: PerformanceCard(
+                      title: metrics[2]['title'] as String,
+                      score: metrics[2]['score'] as double,
+                      color: _getScoreColor(metrics[2]['score'] as double),
+                      icon: metrics[2]['icon'] as IconData,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: PerformanceCard(
+                      title: metrics[3]['title'] as String,
+                      score: metrics[3]['score'] as double,
+                      color: _getScoreColor(metrics[3]['score'] as double),
+                      icon: metrics[3]['icon'] as IconData,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+      ],
     );
   }
 
-  Widget _buildDetailedMetrics(
-    BuildContext context,
-    ColorScheme colorScheme,
-  ) {
-    final isSmallScreen = AppTheme.isMobile(context);
+  Widget _buildDetailedMetrics(BuildContext context, ColorScheme colorScheme) {
     final metrics = [
       {
         'name': 'First Contentful Paint',
         'value': result.detailedMetrics['First Contentful Paint'] ?? 'N/A',
-        'impact': _getMetricImpact(result.detailedMetrics['First Contentful Paint']),
+        'impact': _getMetricImpact(
+          result.detailedMetrics['First Contentful Paint'],
+        ),
         'icon': Icons.flash_on_rounded,
       },
       {
         'name': 'Time to Interactive',
         'value': result.detailedMetrics['Time to Interactive'] ?? 'N/A',
-        'impact': _getMetricImpact(result.detailedMetrics['Time to Interactive']),
+        'impact': _getMetricImpact(
+          result.detailedMetrics['Time to Interactive'],
+        ),
         'icon': Icons.touch_app_rounded,
       },
       {
         'name': 'Largest Contentful Paint',
         'value': result.detailedMetrics['Largest Contentful Paint'] ?? 'N/A',
-        'impact': _getMetricImpact(result.detailedMetrics['Largest Contentful Paint']),
+        'impact': _getMetricImpact(
+          result.detailedMetrics['Largest Contentful Paint'],
+        ),
         'icon': Icons.image_rounded,
       },
       {
         'name': 'Cumulative Layout Shift',
         'value': result.detailedMetrics['Cumulative Layout Shift'] ?? 'N/A',
-        'impact': _getMetricImpact(result.detailedMetrics['Cumulative Layout Shift']),
+        'impact': _getMetricImpact(
+          result.detailedMetrics['Cumulative Layout Shift'],
+        ),
         'icon': Icons.swap_vert_rounded,
       },
       {
@@ -446,7 +443,9 @@ class ResultsScreen extends StatelessWidget {
       {
         'name': 'Total Blocking Time',
         'value': result.detailedMetrics['Total Blocking Time'] ?? 'N/A',
-        'impact': _getMetricImpact(result.detailedMetrics['Total Blocking Time']),
+        'impact': _getMetricImpact(
+          result.detailedMetrics['Total Blocking Time'],
+        ),
         'icon': Icons.block_rounded,
       },
     ];
@@ -467,7 +466,7 @@ class ResultsScreen extends StatelessWidget {
       child: Column(
         children: [
           Padding(
-            padding: EdgeInsets.all(AppTheme.getResponsivePadding(context, 20)),
+            padding: EdgeInsets.all(AppTheme.getResponsivePadding(context)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -493,10 +492,10 @@ class ResultsScreen extends StatelessWidget {
           ),
           const Divider(height: 1),
           ...metrics.map(
-            (metric) => _buildMetricItem(metric, colorScheme),
+            (metric) => _buildMetricItem(context, metric, colorScheme),
           ),
           Padding(
-            padding: EdgeInsets.all(AppTheme.getResponsivePadding(context, 20)),
+            padding: EdgeInsets.all(AppTheme.getResponsivePadding(context)),
             child: OutlinedButton.icon(
               onPressed: () {
                 // Implement download report
@@ -519,15 +518,16 @@ class ResultsScreen extends StatelessWidget {
   }
 
   Widget _buildMetricItem(
+    BuildContext context,
     Map<String, dynamic> metric,
     ColorScheme colorScheme,
   ) {
     final isSmallScreen = AppTheme.isMobile(context);
-    
+
     return ListTile(
       contentPadding: EdgeInsets.symmetric(
-        horizontal: AppTheme.getResponsivePadding(context, 16),
-        vertical: AppTheme.getResponsivePadding(context, 6),
+        horizontal: AppTheme.getResponsivePadding(context),
+        vertical: AppTheme.getResponsivePadding(context),
       ),
       leading: Container(
         padding: const EdgeInsets.all(8),
@@ -570,29 +570,33 @@ class ResultsScreen extends StatelessWidget {
 
   String _getMetricImpact(dynamic value) {
     if (value == null || value == 'N/A') return 'Unknown';
-    
+
     final valueStr = value.toString().toLowerCase();
-    
+
     // For time-based metrics (seconds)
     if (valueStr.contains('s') && !valueStr.contains('ms')) {
-      final timeValue = double.tryParse(valueStr.replaceAll(RegExp(r'[^0-9.]'), ''));
+      final timeValue = double.tryParse(
+        valueStr.replaceAll(RegExp(r'[^0-9.]'), ''),
+      );
       if (timeValue != null) {
         if (timeValue <= 1.5) return 'Low';
         if (timeValue <= 3.0) return 'Medium';
         return 'High';
       }
     }
-    
+
     // For CLS (Cumulative Layout Shift)
     if (!valueStr.contains('s') && !valueStr.contains('ms')) {
-      final clsValue = double.tryParse(valueStr.replaceAll(RegExp(r'[^0-9.]'), ''));
+      final clsValue = double.tryParse(
+        valueStr.replaceAll(RegExp(r'[^0-9.]'), ''),
+      );
       if (clsValue != null) {
         if (clsValue <= 0.1) return 'Low';
         if (clsValue <= 0.25) return 'Medium';
         return 'High';
       }
     }
-    
+
     return 'Medium'; // Default fallback
   }
 
